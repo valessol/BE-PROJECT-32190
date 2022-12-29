@@ -1,8 +1,9 @@
-const express = require("express");
-const cors = require("cors");
-const productsRouter = require("./routes/productsRoutes");
-const cartRouter = require("./routes/cartRoutes");
-const dotEnv = require("dotenv").config();
+import express from "express";
+import cors from "cors";
+import { config } from "dotEnv";
+import productsRouter from "./routes/productsRoutes.js";
+import cartRouter from "./routes/cartRoutes.js";
+config();
 const app = express();
 const PORT = process.env.PORT;
 

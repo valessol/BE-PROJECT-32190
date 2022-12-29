@@ -1,45 +1,15 @@
-const express = require("express");
-const carts = require("../classes/Cart");
-const isStatus200 = require("../helpers");
-const { Router } = express;
+import { Router } from "express";
+import carts from "../daos/index.js";
 const router = Router();
 
+// create new cart
 router.post("/", async (req, res) => {
-  const newCartID = carts.generateCartID();
-  const cart = {
-    id: newCartID,
-    products: [],
-    timestamp: Date.now(),
-  };
-  const response = await carts.createCart(cart);
-  res
-    .status(response.code)
-    .send(isStatus200(response.code) ? newCartID : response);
-});
-
-router.post("/guardar-carrito", async (req, res) => {
-  const cart = req.body;
-  const response = await carts.addCart(cart);
+  const cart = { products: [] };
+  const response = await carts.uploadElement(cart);
   res.status(response.code).send(response);
 });
 
-router.delete("/:id", async (req, res) => {
-  const cartID = req.params.id;
-  const response = await carts.deleteCartById(cartID);
-  res.status(response.code).send(response);
-});
-
-router.get("/:id/productos", async (req, res) => {
-  const id = req.params.id;
-  const response = await carts.getAllProductsInCart(id);
-  res.status(response.code).send(response.data ? response.data : response);
-});
-
-router.get("/", async (req, res) => {
-  const response = await carts.getAllCarts();
-  res.status(response.code).send(response);
-});
-
+// add product to cart
 router.post("/:id/productos", async (req, res) => {
   const cartID = req.params.id;
   const product = req.body;
@@ -47,9 +17,46 @@ router.post("/:id/productos", async (req, res) => {
   res.status(response.code).send(response);
 });
 
+// find product by id in cart
+router.get("/:id/productos/:id_prod", async (req, res) => {
+  const cartId = req.params.id;
+  const productId = req.params.id_prod;
+  const response = await carts.findProductInCart(cartId, productId);
+  res.status(response.code).send(response);
+});
+
+// delete a product from cart by id
 router.delete("/:id/productos/:id_prod", async (req, res) => {
   const { id, id_prod } = req.params;
   const response = await carts.deleteProductFromCart(id, id_prod);
+  res.status(response.code).send(response);
+});
+
+// get all products in cart
+router.get("/:id/productos", async (req, res) => {
+  const id = req.params.id;
+  const response = await carts.getAllProductsInCart(id);
+  res.status(response.code).send(response);
+});
+
+// get all carts
+router.get("/", async (req, res) => {
+  const response = await carts.getAllElements();
+  res.status(response.code).send(response);
+});
+
+// update cart
+router.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const elementToUpdate = req.body;
+  const response = await carts.updateElementById(id, elementToUpdate);
+  res.status(response.code).send(response);
+});
+
+// delete cart by id
+router.delete("/:id", async (req, res) => {
+  const cartID = req.params.id;
+  const response = await carts.deleteElementById(cartID);
   res.status(response.code).send(response);
 });
 
@@ -61,5 +68,4 @@ router.get("*", (req, res) => {
   });
 });
 
-module.exports = router;
-
+export default router;

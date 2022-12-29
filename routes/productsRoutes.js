@@ -1,25 +1,32 @@
-const express = require("express");
+import express from "express";
+import products from "../daos/index.js";
+import isAdmin from "../login/login.js";
 const { Router } = express;
-const products = require("../classes/Products");
-const isAdmin = require("../login/login");
-
 const router = Router();
+//const { productMemoria, productArchivo, productFirebase, productMongo } = products;
 
 router.get("/", async (req, res) => {
-  const response = await products.getAllProducts();
-  res.status(response.code).send(response);
+  //const response = async () => {
+  //const memoria = await productMemoria.getAllElements();
+  //const archivo = await productArchivo.getAllElements();
+  //const firebase = await productFirebase.getAllElements();
+  //const mongo = await productMongo.getAllElements();
+  //return { memoria, archivo, firebase, mongo };
+  //};
+  const response = await products.getAllElements();
+  res.status(200).send(response);
 });
 
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
-  const response = await products.getProductById(Number(id));
+  const response = await products.findElementById(id);
   res.status(response.code).send(response);
 });
 
 router.post("/", async (req, res) => {
   if (isAdmin) {
     const product = req.body;
-    const response = await products.uploadProduct(product);
+    const response = await products.uploadElement(product);
     res.status(response.code).send(response);
   } else {
     res.send({
@@ -33,7 +40,7 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   if (isAdmin) {
     const updatedProduct = req.body;
-    const response = await products.updateProduct(Number(id), updatedProduct);
+    const response = await products.updateElementById(id, updatedProduct);
     res.status(response.code).send(response);
   } else {
     res.send({
@@ -46,8 +53,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   if (isAdmin) {
-    const response = await products.deleteById(Number(id));
-    console.log(response);
+    const response = await products.deleteElementById(id);
     res.status(response.code).send(response);
   } else {
     res.send({
@@ -58,11 +64,10 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.get("*", (req, res) => {
-  console.log(req.headers.url);
   res.send({
     error: -2,
     descripcion: `ruta "${req.url}" método "GET" no implementada`,
   });
 });
 
-module.exports = router;
+export default router;
